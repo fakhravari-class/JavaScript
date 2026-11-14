@@ -1,8 +1,0 @@
-<script type="module">
-  const session = await LanguageModel.create();
-  const stream = session.promptStreaming("یک بیت شعر بگو");
-
-  for await (const chunk of stream) {
-    console.log(chunk);
-  }
-</script>
