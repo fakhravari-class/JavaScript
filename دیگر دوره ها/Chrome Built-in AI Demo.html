@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Chrome Built-in AI Demo</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            line-height: 1.7;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            font-size: 14px;
+        }
+
+        #result {
+            white-space: pre-wrap;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+            min-height: 80px;
+        }
+
+        #status,
+        #timing {
+            font-size: 14px;
+            color: #444;
+            margin: 8px 0;
+            line-height: 1.8;
+        }
+
+        button {
+            padding: 6px 14px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>تست AI محلی کروم (Prompt API)</h1>
+
+    <div id="status">در حال بررسی وضعیت مدل…</div>
+    <div id="timing"></div>
+
+    <label for="prompt">متن خود را بنویسید:</label>
+    <textarea id="prompt">یک توضیح کوتاه درباره هوش مصنوعی بنویس.</textarea>
+
+    <br /><br />
+    <button id="sendBtn">ارسال به AI</button>
+
+    <h3>خروجی:</h3>
+    <div id="result"></div>
+
+    <script>
+        let session = null;
+
+        async function checkAvailability() {
+            if (!("LanguageModel" in window)) {
+                document.getElementById("status").textContent =
+                    "LanguageModel در این نسخه از کروم فعال نیست.";
+                document.getElementById("sendBtn").disabled = true;
+                return;
+            }
+
+            const availability = await LanguageModel.availability();
+
+            if (availability === "no") {
+                document.getElementById("status").textContent =
+                    "مدل روی این سیستم پشتیبانی نمی‌شود.";
+                document.getElementById("sendBtn").disabled = true;
+            } else if (availability === "after-download") {
+                document.getElementById("status").textContent =
+                    "مدل باید دانلود شود...";
+            } else {
+                document.getElementById("status").textContent = "مدل آماده است ✅";
+            }
+        }
+
+        async function getSession() {
+            if (session) return session;
+
+            session = await LanguageModel.create({
+                expectedOutputLanguage: "fa",
+                multimodal: true,
+
+                monitor(m) {
+                    m.addEventListener("downloadprogress", (e) => {
+                        document.getElementById("status").textContent =
+                            "در حال دانلود مدل: " + Math.round(e.loaded * 100) + "%";
+                    });
+                }
+            });
+
+            document.getElementById("status").textContent = "مدل آماده است ✅";
+            return session;
+        }
+
+        async function runPrompt() {
+            const text = document.getElementById("prompt").value.trim();
+            const resultEl = document.getElementById("result");
+            const statusEl = document.getElementById("status");
+            const timingEl = document.getElementById("timing");
+            const btn = document.getElementById("sendBtn");
+
+            if (!text) return;
+
+            btn.disabled = true;
+            resultEl.textContent = "";
+            timingEl.innerHTML = "";
+            statusEl.textContent = "در حال ارسال درخواست…";
+
+            // 1️⃣ زمان ارسال درخواست
+            const requestTime = new Date();
+            const reqTS = performance.now();
+
+            timingEl.innerHTML = `
+                ⏱ زمان ارسال: ${requestTime.toLocaleTimeString()}
+            `;
+
+            try {
+                const s = await getSession();
+
+                // 2️⃣ دریافت پاسخ (دقیق)
+                const output = await s.prompt(text);
+
+                const responseTime = new Date();
+                const resTS = performance.now();
+
+                // مدت واقعی پردازش
+                const durationSec = ((resTS - reqTS) / 1000).toFixed(2);
+
+                statusEl.textContent = "پاسخ دریافت شد ✅";
+
+                // نمایش سه زمان
+                timingEl.innerHTML = `
+                    ⏱ <b>زمان ارسال:</b> ${requestTime.toLocaleTimeString()} <br>
+                    ⏱ <b>زمان دریافت:</b> ${responseTime.toLocaleTimeString()} <br>
+                    ⏳ <b>مدت انتظار:</b> ${durationSec} ثانیه
+                `;
+
+                resultEl.textContent = output;
+
+            } catch (e) {
+                statusEl.textContent = "خطا در پردازش!";
+                resultEl.textContent = "خطا: " + e;
+            }
+
+            btn.disabled = false;
+        }
+
+        document.getElementById("sendBtn").addEventListener("click", runPrompt);
+
+        checkAvailability();
+    </script>
+
+</body>
+
+</html>

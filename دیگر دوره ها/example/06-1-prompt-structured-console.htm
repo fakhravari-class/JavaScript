@@ -1,0 +1,25 @@
+<script type="module">
+	const session = await LanguageModel.create();
+	const schema = {
+	  type: "object",
+	  required: ["rating"],
+	  additionalProperties: false,
+	  properties: {
+		rating: {
+		  type: "number",
+		  minimum: 0,
+		  maximum: 5,
+		},
+	  },
+	};
+
+	const feedback = "هجب فیلم حوصله سربری بود. خیلی بازیهای مصنوعی داشت";
+	const result = await session.prompt(
+	  `این بازخورد را به یک امتیاز بین ۰ تا ۵ خلاصه کن: ${feedback}`,
+	  { responseConstraint: schema }
+	);
+
+	//const { rating } = JSON.parse(result);
+	console.log(result); // خروجی: یک عدد بین ۰ تا ۵
+
+</script>

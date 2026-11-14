@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>توصیف تصویر با مدل زبانی</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9fafb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: white;
+      width: 360px;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 15px;
+    }
+    img {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+    }
+    button {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: 0.2s;
+    }
+    button:hover {
+      background-color: #1e40af;
+    }
+    input[type="file"] {
+      margin: 10px 0;
+      display: block;
+    }
+    #result {
+      text-align: right;
+      margin-top: 15px;
+      background: #f3f4f6;
+      padding: 10px;
+      border-radius: 8px;
+      min-height: 60px;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>🧠 توصیف تصویر</h2>
+    <input type="file" id="fileInput" accept="image/*" />
+    <img id="preview" alt="پیش‌نمایش تصویر" hidden />
+    <button id="runBtn" disabled>توصیف کن</button>
+    <div id="result">...</div>
+  </div>
+
+  <script type="module">
+    const fileInput = document.getElementById("fileInput");
+    const preview = document.getElementById("preview");
+    const btn = document.getElementById("runBtn");
+    const resultBox = document.getElementById("result");
+    let selectedFile = null;
+
+    // انتخاب و پیش‌نمایش تصویر
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      selectedFile = file;
+      preview.src = URL.createObjectURL(file);
+      preview.hidden = false;
+      btn.disabled = false;
+      resultBox.textContent = "تصویر آماده است.";
+    });
+
+    btn.addEventListener("click", async () => {
+      if (!selectedFile) {
+        alert("لطفاً ابتدا تصویری انتخاب کنید.");
+        return;
+      }
+
+      resultBox.textContent = "در حال پردازش تصویر...";
+      btn.disabled = true;
+
+      try {
+        const session = await LanguageModel.create({
+          expectedInputs: [{ type: "image" }],
+          expectedOutputs: [{ type: "text", languages: ["en"] }],
+          initialPrompts: [
+            {
+              role: "system",
+              content: "به فارسی توصیف کن"
+            }
+          ]
+        });
+
+        const referenceImage = selectedFile;
+
+        const response = await session.prompt([
+          {
+            role: "user",
+            content: [
+              { type: "text", value: "این تصویر را به فارسی توصیف کن:" },
+              { type: "image", value: referenceImage }
+            ]
+          }
+        ]);
+
+        resultBox.textContent = response?.output_text || JSON.stringify(response, null, 2);
+      } catch (err) {
+        resultBox.textContent = "❌ خطا: " + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

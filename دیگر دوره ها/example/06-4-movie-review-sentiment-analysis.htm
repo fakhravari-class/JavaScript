@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<title>تحلیل احساس نقد فیلم (JSON کامل)</title>
+<link href="https://cdn.jsdelivr.net/npm/vazirmatn@33.003/css/Vazirmatn-font-face.css" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --fg: #111;
+    --muted: #666;
+    --card: #fff;
+    --primary: #2563eb;
+    --primary-dark: #1e40af;
+    --good: #16a34a;
+    --bad: #dc2626;
+    --mixed: #d97706;
+  }
+  body {
+    font-family: 'Vazirmatn', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    direction: rtl;
+    background-color: var(--bg);
+    padding: 40px 20px;
+    color: var(--fg);
+  }
+  h2 {
+    color: #111;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  p.subtitle {
+    color: var(--muted);
+    margin: 0 auto 20px;
+    max-width: 820px;
+    text-align: center;
+  }
+  .container {
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  textarea {
+    width: 100%;
+    min-height: 140px;
+    font-size: 16px;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    outline: none;
+    resize: vertical;
+    background: #fff;
+  }
+  textarea:focus { box-shadow: 0 0 0 3px rgba(37,99,235,.15); border-color: var(--primary); }
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  button {
+    padding: 10px 16px;
+    font-size: 15px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--primary);
+    color: white;
+    cursor: pointer;
+    transition: background .2s, transform .05s;
+  }
+  button:hover:not(:disabled) { background-color: var(--primary-dark); }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .cards { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 18px; }
+  @media (min-width: 980px) { .cards { grid-template-columns: 1.2fr .8fr; } }
+
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+  }
+  .card h3 { margin: 0 0 8px; font-size: 16px; color: #111; }
+  .metaRow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .badge { display: inline-flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 999px; background: #f3f4f6; font-weight: 600; font-size: 13px; }
+  .badge.good { color: var(--good); background: #ecfdf5; }
+  .badge.bad { color: var(--bad); background: #fef2f2; }
+  .badge.mixed { color: var(--mixed); background: #fffbeb; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12.5px; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .kv { background: #fafafa; border: 1px solid #eee; border-radius: 10px; padding: 8px 10px; word-break: break-word; overflow-wrap: anywhere; }
+  .kv .k { color: #374151; font-size: 12px; }
+  .kv .v { font-weight: 700; margin-top: 2px; }
+  .list { margin: 6px 0 0 0; padding: 0 18px; }
+  .jsonBox { background: #0b1021; color: #d1e7ff; border-radius: 12px; padding: 12px; overflow: auto; max-height: 420px; direction: ltr; }
+  .muted { color: #6b7280; }
+  .details{display:none !important;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>تحلیل احساس نقد/نظر فیلم → خلاصهٔ فشرده</h2>
+  <p class="subtitle">متن نقد یا نظر دربارهٔ یک فیلم را وارد کنید. خروجی شامل برچسب احساس کلی، اطمینان، جنبه‌ها (داستان، کارگردانی، بازیگری، …)، نشانه‌های جایزه، استدلال کوتاه و شواهد خواهد بود.</p>
+
+  <textarea id="feedback" placeholder="مثلاً: «این فیلم باید تمشک طلایی بگیره؛ فیلمنامه افتضاحه ولی بازی‌ها بد نیست.»"></textarea>
+
+  <div class="controls">
+    <button id="analyzeBtn">تحلیل کن</button>
+    <button id="clearBtn" type="button">پاک کردن</button>
+  </div>
+
+  <div class="cards">
+    <div class="card" id="summaryCard" style="display:none;">
+      <h3>خلاصهٔ تحلیل</h3>
+      <div class="metaRow">
+        <span class="badge" id="overallBadge">—</span>
+        <span class="badge" id="confidenceBadge">اطمینان: —</span>
+      </div>
+      <div class="grid" style="margin-top:10px;">
+        <div class="kv"><div class="k">جوایز اشاره‌شده؟</div><div class="v" id="awMentioned">—</div></div>
+        <div class="kv"><div class="k">نوع جوایز</div><div class="v" id="awType">—</div></div>
+        <div class="kv"><div class="k">تعداد شواهد</div><div class="v" id="evCount">—</div></div>
+      </div>
+      <div style="margin-top:10px;">
+        <div class="k">استدلال:</div>
+        <div id="reasoning" class="muted"></div>
+      </div>
+      <div style="margin-top:10px;">
+        <div class="k">شواهد:</div>
+        <ul id="evidence" class="list"></ul>
+      </div>
+    </div>
+
+    <div class="card details" id="aspectsCard" style="display:none;">
+      <h3>جنبه‌ها · <span class="muted" dir="ltr">Aspect‑level</span></h3>
+      <div id="aspectsGrid" class="grid"></div>
+      <div style="margin-top:10px;">
+        <div class="k">ذکر خام جوایز:</div>
+        <ul id="awRaw" class="list"></ul>
+      </div>
+    </div>
+
+    <div class="card details" id="jsonCard" style="display:none;">
+      <h3>JSON خام (خروجی مدل)</h3>
+      <pre class="jsonBox mono" id="rawJson"></pre>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// === 1) System Prompt (English) ===
+const SYSTEM_PROMPT = `You are an expert **film-review sentiment classifier**. Your job is to analyze a single user-provided snippet (a review, comment, or short post about a movie) and return a structured sentiment assessment.
+
+#### 1) Objectives
+- Determine the **overall sentiment** toward the film: \"positive\", \"negative\", \"neutral\", or \"mixed\".
+- Provide **aspect-level sentiment** for key facets when present: \`story\`, \`direction\`, \`acting\`, \`cinematography\`, \`music_sound\`, \`editing_pacing\`, \`VFX\`, \`dialogue\`.
+- Be **robust to surface cues** (e.g., \“deserves award X\”). Do **not** assume praise just because an \“award\” is mentioned. Some awards are **negative** (e.g., Razzies).
+- Handle **sarcasm, irony, hedging, and negation** precisely.
+
+#### 2) Award disambiguation (critical)
+When the text references awards as evidence of quality, interpret them using this lexicon:
+
+- **Negative (\“bad\”) awards** → mentioning as a *desirable outcome* or \“deserves X\” is a **negative** cue about the film (unless clearly negated or quoted as someone else’s mistaken view):
+  - Golden Raspberry Awards (**Razzies**, Razzie, \“Golden Raspberry\")
+  - Stinkers Bad Movie Awards (historical references still negative)
+  - Golden Kela Awards (India)
+  - Golden Broom Awards (Hong Kong)
+  - (Italy) parodic/anti-awards denoting *worst* (treat as negative when context = worst)
+- **Prestige (\“good\”) awards** → positive cue (unless clearly negated, sarcastic, or hypothetical about marketing only):
+  - Academy Awards (**Oscars**), BAFTA, Golden Globes
+  - Cannes (Palme d’Or), Venice (Golden Lion), Berlin (Golden Bear)
+  - Critics’ Choice, National Board of Review, NY/LA Film Critics, César, Goya
+
+**Rule**: If the text says \“deserves/should win\” a **negative award**, count this as **negative sentiment**. If it says \“deserves/should win\” a **prestige award**, count as **positive**, unless the surrounding cues indicate sarcasm or negation.
+
+#### 3) Sarcasm & negation handling
+- Treat cues like \“yeah right\”, \“sure…\”, \“as if\”, scare quotes, exaggerated praise (\“Oscar-worthy… if Oscars rewarded boredom\”), or contrastive conjunctions (\“but\”, \“though\”, \“except\”) as potential **negation/irony** triggers.
+- If sarcasm is probable but not certain, favor \"mixed\" and lower confidence.
+- Compare local clauses: \“performances shine **but** the plot is a mess\” → overall could be \"mixed\"; weigh the author’s emphasis.
+
+#### 3.1) Locale-aware cues (Persian)
+- Treat Persian rhetorical denials like \"مگه میشه X بد باشه؟\" (\"How could it be bad if X made it?\") as a **positive** cue unless contradicted by explicit negatives elsewhere.
+- Phrases like \"خوبه؟ شوخی می‌کنی؟\" often signal **negative** sarcasm.
+- If the author appeals to creator reputation only (e.g., \"نولان ساخته، پس خوبه\"), treat as a **weak positive**; if no contrary evidence is present, prefer **positive** (or **neutral** if hedged), but **never negative** solely from such an appeal.
+
+#### 4) Decision rules
+- **Positive**: Clear praise outweighs criticism; no strong negative cues.
+- **Negative**: Clear criticism outweighs praise, or positive words are used ironically.
+- **Neutral**: Mostly factual/agenda-free, or sentiment is unclear/ambiguous.
+- **Mixed**: Substantial positive and negative points both present without clear dominance.
+- If sentiment is unclear even after rules, default to \"neutral\".
+
+#### 5) Evidence marking
+Extract **up to three short spans** (verbatim phrases) from the text that most influenced your decision: e.g., \"evidence_spans\": [\"deserves a Razzie\", \"painfully slow\", \"the lead is phenomenal\"].
+
+#### 6) Output format (JSON only)
+Return **only** a JSON object with this schema:
+
+{\n  \"overall\": \"positive | negative | neutral | mixed\",\n  \"confidence\": 0.0,\n  \"aspects\": {\n    \"story\": \"positive | negative | neutral | mixed | none\",\n    \"direction\": \"positive | negative | neutral | mixed | none\",\n    \"acting\": \"positive | negative | neutral | mixed | none\",\n    \"cinematography\": \"positive | negative | neutral | mixed | none\",\n    \"music_sound\": \"positive | negative | neutral | mixed | none\",\n    \"editing_pacing\": \"positive | negative | neutral | mixed | none\",\n    \"vfx\": \"positive | negative | neutral | mixed | none\",\n    \"dialogue\": \"positive | negative | neutral | mixed | none\"\n  },\n  \"award_cues\": {\n    \"mentioned\": true,\n    \"type\": \"negative | prestige | mixed | none\",\n    \"raw_mentions\": [\"...\"]\n  },\n  \"reasoning\": \"1–3 concise sentences explaining the decision, explicitly referencing award disambiguation or sarcasm if used.\",\n  \"evidence_spans\": [\"...\"]\n}
+
+Notes:
+- \"confidence\" ∈ [0,1]; calibrate by clarity/consistency of cues and sarcasm risk.
+- For any aspect not present, use \"none\".
+- \"award_cues.raw_mentions\" should list exact phrases found; if none, use [] and set \"mentioned\": false and \"type\": \"none\".
+
+#### 7) Edge-case guidance
+- Comparatives, hypotheticals/marketing, quoting others, emoji/colloquialisms, multilingual cues → handle as specified.
+
+Strictly follow the schema and rules above. Output **only** the JSON object.`;
+
+// === 2) JSON Schema to enforce with responseConstraint ===
+const ENUM_SENT = ["positive", "negative", "neutral", "mixed", "none"];
+const schema = {
+  type: "object",
+  required: ["overall", "confidence", "aspects", "award_cues", "reasoning", "evidence_spans"],
+  additionalProperties: false,
+  properties: {
+    overall: { type: "string", enum: ["positive", "negative", "neutral", "mixed"] },
+    confidence: { type: "number", minimum: 0, maximum: 1 },
+    aspects: {
+      type: "object",
+      required: ["story","direction","acting","cinematography","music_sound","editing_pacing","vfx","dialogue"],
+      additionalProperties: false,
+      properties: {
+        story: { type: "string", enum: ENUM_SENT },
+        direction: { type: "string", enum: ENUM_SENT },
+        acting: { type: "string", enum: ENUM_SENT },
+        cinematography: { type: "string", enum: ENUM_SENT },
+        music_sound: { type: "string", enum: ENUM_SENT },
+        editing_pacing: { type: "string", enum: ENUM_SENT },
+        vfx: { type: "string", enum: ENUM_SENT },
+        dialogue: { type: "string", enum: ENUM_SENT }
+      }
+    },
+    award_cues: {
+      type: "object",
+      required: ["mentioned","type","raw_mentions"],
+      additionalProperties: false,
+      properties: {
+        mentioned: { type: "boolean" },
+        type: { type: "string", enum: ["negative","prestige","mixed","none"] },
+        raw_mentions: { type: "array", items: { type: "string" } }
+      }
+    },
+    reasoning: { type: "string", minLength: 1 },
+    evidence_spans: { type: "array", items: { type: "string" }, maxItems: 3 }
+  }
+};
+
+// === 3) Helpers ===
+const FEEDBACK_PLACEHOLDER = `مثال‌ها:\n- It deserves a Razzie for that screenplay.\n- Give them the Oscar already—no notes.\n- Acting shines, but the plot is a mess.\n- People say it’ll sweep awards; I found it fine.`
+
+document.getElementById('feedback').placeholder = FEEDBACK_PLACEHOLDER;
+
+function buildPrompt(userText) {
+  return `${SYSTEM_PROMPT}\n\nUSER SNIPPET:\n${userText}\n\nReturn only the JSON object.`;
+}
+
+function badgeClass(overall) {
+  if (overall === 'positive') return 'badge good';
+  if (overall === 'negative') return 'badge bad';
+  if (overall === 'mixed') return 'badge mixed';
+  return 'badge';
+}
+
+function prettyAspect(v) {
+  const map = { positive: 'مثبت', negative: 'منفی', neutral: 'خنثی', mixed: 'مختلط', none: '—' };
+  return map[v] || v;
+}
+
+function aspectKeyFa(k) {
+  const m = {
+    story: 'داستان', direction: 'کارگردانی', acting: 'بازیگری', cinematography: 'فیلمبرداری',
+    music_sound: 'موسیقی/صدا', editing_pacing: 'تدوین/ریتم', vfx: 'جلوه‌های ویژه', dialogue: 'دیالوگ'
+  };
+  return m[k] || k;
+}
+
+function renderOutput(obj) {
+  const summaryCard = document.getElementById('summaryCard');
+  const aspectsCard = document.getElementById('aspectsCard');
+  const jsonCard = document.getElementById('jsonCard');
+  const overallBadge = document.getElementById('overallBadge');
+  const confidenceBadge = document.getElementById('confidenceBadge');
+  const awMentioned = document.getElementById('awMentioned');
+  const awType = document.getElementById('awType');
+  const evCount = document.getElementById('evCount');
+  const reasoning = document.getElementById('reasoning');
+  const evidence = document.getElementById('evidence');
+  const awRaw = document.getElementById('awRaw');
+  const aspectsGrid = document.getElementById('aspectsGrid');
+  const rawJson = document.getElementById('rawJson');
+
+  // Summary badges
+  overallBadge.className = badgeClass(obj.overall);
+  overallBadge.textContent = `برچسب: ${obj.overall}`;
+  confidenceBadge.textContent = `اطمینان: ${(obj.confidence*100).toFixed(0)}%`;
+
+  // Awards
+  awMentioned.textContent = obj.award_cues.mentioned ? 'بله' : 'خیر';
+  awType.textContent = obj.award_cues.type;
+
+  // Reasoning & evidence
+  reasoning.textContent = obj.reasoning || '—';
+  evidence.innerHTML = '';
+  (obj.evidence_spans || []).forEach(s => {
+    const li = document.createElement('li');
+    li.textContent = `“${s}”`;
+    evidence.appendChild(li);
+  });
+  evCount.textContent = (obj.evidence_spans || []).length;
+
+  // Aspects grid
+  aspectsGrid.innerHTML = '';
+  Object.entries(obj.aspects || {}).filter(([_,v]) => v !== 'none').forEach(([k,v]) => {
+    const div = document.createElement('div');
+    div.className = 'kv';
+    const kEl = document.createElement('div');
+    kEl.className = 'k';
+    kEl.textContent = aspectKeyFa(k);
+    const vEl = document.createElement('div');
+    vEl.className = 'v';
+    vEl.textContent = prettyAspect(v);
+    div.appendChild(kEl); div.appendChild(vEl);
+    aspectsGrid.appendChild(div);
+  });
+
+  // Raw award mentions
+  awRaw.innerHTML = '';
+  (obj.award_cues?.raw_mentions || []).forEach(s => {
+    const li = document.createElement('li');
+    li.textContent = s;
+    awRaw.appendChild(li);
+  });
+
+  // Raw JSON
+  rawJson.textContent = JSON.stringify(obj, null, 2);
+
+  summaryCard.style.display = 'block';
+  aspectsCard.style.display = 'block';
+  jsonCard.style.display = 'block';
+}
+
+function showError(msg) {
+  renderOutput({
+    overall: 'neutral',
+    confidence: 0,
+    aspects: { story:'none', direction:'none', acting:'none', cinematography:'none', music_sound:'none', editing_pacing:'none', vfx:'none', dialogue:'none' },
+    award_cues: { mentioned:false, type:'none', raw_mentions:[] },
+    reasoning: `خطا: ${msg}`,
+    evidence_spans: []
+  });
+}
+
+async function main() {
+  const feedbackEl = document.getElementById('feedback');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const clearBtn = document.getElementById('clearBtn');
+
+  let session;
+  try {
+    session = await LanguageModel.create();
+  } catch (e) {
+    console.error(e);
+    showError('عدم توانایی در ایجاد نشست مدل.');
+    return;
+  }
+
+  analyzeBtn.addEventListener('click', async () => {
+    const feedback = feedbackEl.value.trim();
+    if (!feedback) return;
+
+    analyzeBtn.disabled = true;
+    analyzeBtn.textContent = 'در حال تحلیل... ⏳';
+
+    try {
+      const promptText = buildPrompt(feedback);
+      const result = await session.prompt(promptText, { responseConstraint: schema });
+
+      // The API is expected to return a JSON string per responseConstraint
+      let parsed;
+      try {
+        parsed = (typeof result === 'string') ? JSON.parse(result) : result;
+      } catch (e) {
+        // Fallback: try to extract first JSON object
+        const match = String(result).match(/\{[\s\S]*\}/);
+        if (match) parsed = JSON.parse(match[0]);
+        else throw new Error('پاسخ مدل JSON معتبر نیست.');
+      }
+
+      // Minimal runtime guardrails
+      const requiredTop = ['overall','confidence','aspects','award_cues','reasoning','evidence_spans'];
+      for (const k of requiredTop) if (!(k in parsed)) throw new Error(`کلید ${k} وجود ندارد.`);
+      renderOutput(parsed);
+
+    } catch (err) {
+      console.error(err);
+      showError(err.message || String(err));
+    } finally {
+      analyzeBtn.disabled = false;
+      analyzeBtn.textContent = 'تحلیل کن';
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    feedbackEl.value = '';
+    document.getElementById('summaryCard').style.display = 'none';
+    document.getElementById('aspectsCard').style.display = 'none';
+    document.getElementById('jsonCard').style.display = 'none';
+  });
+
+  window.addEventListener('beforeunload', async () => {
+    try { await session?.destroy?.(); } catch (_) {}
+  });
+}
+
+main();
+</script>
+</body>
+</html>

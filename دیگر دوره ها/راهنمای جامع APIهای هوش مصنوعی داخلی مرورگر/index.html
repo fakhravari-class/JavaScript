@@ -1,0 +1,1582 @@
+<!DOCTYPE html><html lang="fa" dir="rtl"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>راهنمای جامع APIهای هوش مصنوعی داخلی مرورگر (Chrome & Edge)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link href="css/prism-okaidia.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            line-height: 1.8;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h2 {
+            color: #764ba2;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            padding-right: 1rem;
+            border-right: 5px solid #764ba2;
+        }
+
+        h3 {
+            color: #5a67d8;
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h4 {
+            color: #6b46c1;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-right: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+        }
+
+        code:not([class*="language-"]) {
+            background: #f7fafc;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #c7254e;
+            font-size: 0.9em;
+            direction: ltr;
+            display: inline-block;
+        }
+
+        pre {
+            background: #2d3748;
+            padding: 1.5rem;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            direction: ltr;
+            text-align: left;
+            position: relative;
+        }
+
+        pre[class*="language-"] {
+            background: #2d3748; 
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #5a67d8;
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 5px;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s, background-color 0.3s;
+        }
+
+        pre:hover .copy-btn {
+            opacity: 1;
+        }
+        
+        .copy-btn:hover {
+            background-color: #764ba2;
+        }
+        
+        .copy-btn.copied {
+            background-color: #28a745;
+            opacity: 1;
+        }
+
+        .copy-btn-inline {
+            background-color: #764ba2;
+            color: white;
+            border: none;
+            padding: 0.4rem 0.6rem;
+            border-radius: 5px;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+
+        .copy-btn-inline:hover {
+            background-color: #5a67d8;
+        }
+        
+        .copy-btn-inline.copied {
+            background-color: #28a745;
+        }
+        
+        .flag-container {
+            margin: 1rem 0;
+        }
+
+        .flag-container code {
+            display: inline;
+            margin-left: 0.5rem;
+        }
+        
+        .note {
+            background: #e6fffa;
+            border-right: 4px solid #38b2ac;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+
+        .note strong {
+            color: #38b2ac;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .warning {
+            background: #fff5f5;
+            border-right: 4px solid #f56565;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+
+        .warning strong {
+            color: #f56565;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .info {
+            background: #ebf8ff;
+            border-right: 4px solid #4299e1;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+
+        .info strong {
+            color: #4299e1;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .browser-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .chrome-badge {
+            background: #34a853;
+            color: white;
+        }
+
+        .edge-badge {
+            background: #0078d4;
+            color: white;
+        }
+
+        .demo-badge {
+            background: #f59e0b;
+            color: white;
+        }
+
+        a {
+            color: #5a67d8;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        a:hover {
+            border-bottom-color: #5a67d8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            direction: rtl;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            text-align: right;
+        }
+
+        th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        .toc {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: #764ba2;
+        }
+
+        .toc ul {
+            margin-right: 1.5rem;
+        }
+
+        .toc li {
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-table {
+            margin: 2rem 0;
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+        }
+
+        .demo-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            font-weight: 500;
+            border-bottom: none;
+        }
+
+        .demo-link:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .examples-box {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .examples-box h4 {
+            color: #d97706;
+            margin-top: 0;
+        }
+
+        .examples-box ul {
+            margin-right: 1.5rem;
+        }
+
+        .all-examples-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 3px solid #f59e0b;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .all-examples-box h3 {
+            color: #d97706;
+            margin-top: 0;
+            text-align: center;
+            font-size: 1.6rem;
+        }
+
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .example-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .example-item h5 {
+            color: #6b46c1;
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+        }
+
+        .example-item a {
+            display: block;
+            color: #667eea;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>راهنمای جامع APIهای هوش مصنوعی داخلی مرورگر</h1>
+        <p style="text-align: center; color: #667eea; font-weight: 600; margin-bottom: 2rem;">
+            Chrome (Gemini Nano) & Microsoft Edge (Phi-4-mini)
+        </p>
+
+        <!-- بخش لینک به تمام نمونه‌ها -->
+        <div class="all-examples-box">
+            <h3>📦 تمام نمونه کدهای آموزش</h3>
+            <p style="text-align: center; margin-bottom: 1rem;">
+                برای دسترسی آسان به تمام نمونه کدهای این آموزش، روی لینک‌های زیر کلیک کنید:
+            </p>
+            
+            <div class="examples-grid">
+                <div class="example-item">
+                    <h5>۰۰. دانلود مدل</h5>
+                    <a href="examples/00-download_model.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۱. بررسی Availability (کنسول)</h5>
+                    <a href="examples/01-check-availability-console.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۱. بررسی Availability (UI)</h5>
+                    <a href="examples/01-check-availability-simple-ui.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۲. Prompt (کنسول)</h5>
+                    <a href="examples/02-1-prompt-console.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۲. Prompt (UI)</h5>
+                    <a href="examples/02-2-prompt-simple-ui.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۳. Streaming (کنسول)</h5>
+                    <a href="examples/03-1-promptStreaming-console.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۳. Streaming (UI)</h5>
+                    <a href="examples/03-2-promptStreaming-simple-ui.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۳. Streaming (Markdown)</h5>
+                    <a href="examples/03-3-promptStreaming_markdown.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۳. Streaming با Abort</h5>
+                    <a href="examples/03-4-promptStreaming-with-abort.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۳. Streaming با Abort v2</h5>
+                    <a href="examples/03-5-promptStreaming-with-abort-v2.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۴. Clone Session</h5>
+                    <a href="examples/04-1-clone-session.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۵. Few-Shot (کنسول)</h5>
+                    <a href="examples/05-1-few-shot-cosole.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۵. Few-Shot (UI)</h5>
+                    <a href="examples/05-2-few-shot-simple-ui.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۶. Structured Output (کنسول)</h5>
+                    <a href="examples/06-1-prompt-structured-console.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۶. Structured Output (UI)</h5>
+                    <a href="examples/06-2-prompt-structured-simple-ui.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۶. تحلیل احساسات فیلم</h5>
+                    <a href="examples/06-3-movie-review-sentiment-analysis.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۶. Structured Output</h5>
+                    <a href="examples/06-4-prompt-structured.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۷. Multimodal VLM (کنسول)</h5>
+                    <a href="examples/07-1-VLM-console.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۷. Multimodal VLM (کنسول 2)</h5>
+                    <a href="examples/07-2-VLM-console2.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+                
+                <div class="example-item">
+                    <h5>۰۷. Multimodal VLM (UI)</h5>
+                    <a href="examples/07-3-VLM-simple-ui.htm" target="_blank">مشاهده دمو →</a>
+                </div>
+            </div>
+        </div>
+        
+        <h2 id="intro">۱. مقدمه</h2>
+        <p>ظهور هوش مصنوعی روی دستگاه (on-device AI) یک تغییر استراتژیک در توسعه وب مدرن را رقم زده است. با انتقال پردازش‌های هوش مصنوعی از سرورهای ابری به دستگاه کاربر، توسعه‌دهندگان اکنون می‌توانند برنامه‌هایی بسازند که سریع‌تر، خصوصی‌تر و مقرون‌به‌صرفه‌تر هستند. APIهای هوش مصنوعی داخلی، مجموعه‌ای از رابط‌های برنامه‌نویسی استاندارد هستند که به وب‌سایت‌ها و برنامه‌های وب اجازه می‌دهند تا از قابلیت‌های مدل‌های زبان بزرگ (LLM) که مستقیماً در مرورگر تعبیه شده‌اند، بهره‌مند شوند. این مدل‌ها، مانند <strong>Gemini Nano</strong> در کروم و <strong>Phi-4-mini</strong> در اج، بدون نیاز به ارسال داده‌ها به سرورهای خارجی، وظایف پیچیده‌ای را انجام می‌دهند.</p>
+
+        <h3>۱.۱. مزایای کلیدی</h3>
+        <p>این رویکرد مزایای کلیدی زیر را به همراه دارد:</p>
+        <ul>
+            <li><strong>حفظ حریم خصوصی:</strong> داده‌های کاربر به صورت محلی پردازش می‌شوند و هرگز دستگاه را ترک نمی‌کنند، که این امر برای برنامه‌هایی که با اطلاعات حساس سروکار دارند، حیاتی است.</li>
+            <li><strong>سرعت بالا:</strong> با حذف تأخیر ناشی از رفت و برگشت به سرور، پاسخ‌ها تقریباً آنی هستند و تجربه کاربری روان‌تری را فراهم می‌کنند.</li>
+            <li><strong>قابلیت آفلاین:</strong> برنامه‌ها می‌توانند حتی بدون اتصال به اینترنت از قابلیت‌های هوش مصنوعی استفاده کنند و عملکرد خود را در شرایط مختلف حفظ کنند.</li>
+            <li><strong>کاهش هزینه‌ها:</strong> توسعه‌دهندگان نیازی به پرداخت هزینه‌های گزاف برای سرویس‌های هوش مصنوعی ابری ندارند و کاربران نیز پهنای باند کمتری مصرف می‌کنند.</li>
+        </ul>
+
+        <p>این راهنما چهار API اصلی در این مجموعه را پوشش می‌دهد: <code>Prompt API</code>، <code>Summarizer API</code>، <code>Writer API</code>، <code>Rewriter API</code>، <code>Translator API</code> و <code>Language Detector API</code>. در ادامه، به بررسی مفاهیم اصلی و مراحل راه‌اندازی مورد نیاز برای پیاده‌سازی این ابزارهای قدرتمند در هر دو مرورگر خواهیم پرداخت.</p>
+
+        <div class="toc">
+            <h3>فهرست مطالب</h3>
+            <ul>
+                <li><a href="#models">۲. مدل‌های زبانی</a></li>
+                <li><a href="#requirements">۳. الزامات سخت‌افزاری</a></li>
+                <li><a href="#setup">۴. نصب و فعال‌سازی</a></li>
+                <li><a href="#prompt-api">۵. Prompt API</a></li>
+                <li><a href="#writing-apis">۶. Writing Assistance APIs</a></li>
+                <li><a href="#translator">۷. Translator API</a></li>
+                <li><a href="#detector">۸. Language Detector API</a></li>
+                <li><a href="#advanced">۹. مباحث پیشرفته</a></li>
+                <li><a href="#conclusion">۱۰. نتیجه‌گیری</a></li>
+            </ul>
+        </div>
+
+        <h2 id="models">۲. مدل‌های زبانی در مرورگرها</h2>
+
+        <h3>۲.۱. Gemini Nano <span class="browser-badge chrome-badge">Chrome</span></h3>
+        <p><strong>Gemini Nano</strong> مدل زبانی قدرتمند Google است که در Chrome تعبیه شده است. این مدل برای اجرا بر روی دستگاه‌های کاربر بهینه شده و قابلیت‌های پیشرفته‌ای در پردازش متن و تصویر دارد.</p>
+
+        <h3>۲.۲. Phi-4-mini <span class="browser-badge edge-badge">Edge</span></h3>
+        <p><strong>Phi-4-mini</strong> مدل زبانی کوچک (SLM) Microsoft است که در Edge تعبیه شده است. این مدل با 3.8 میلیارد پارامتر، در وظایف مبتنی بر متن عملکرد فوق‌العاده‌ای دارد و برای تجربیات هوش مصنوعی بلادرنگ و کارآمد طراحی شده است.</p>
+
+        <div class="info">
+            <strong>اطلاعات بیشتر:</strong>
+            <ul style="margin-top: 0.5rem; margin-right: 1.5rem;">
+                <li>Phi-4-mini: <a href="https://huggingface.co/microsoft/Phi-4-mini-instruct" target="_blank">صفحه مدل در Hugging Face</a></li>
+                <li>Gemini Nano: <a href="https://deepmind.google/technologies/gemini/nano/" target="_blank">صفحه رسمی Gemini Nano</a></li>
+            </ul>
+        </div>
+
+        <h2 id="requirements">۳. الزامات سخت‌افزاری</h2>
+        
+        <h3>۳.۱. Chrome</h3>
+        <ul>
+            <li><strong>سیستم عامل:</strong> Windows 10 یا 11، macOS 13+ (Ventura به بعد)، Linux، یا ChromeOS (از Platform 16389.0.0 به بعد) بر روی دستگاه‌های Chromebook Plus</li>
+            <li><strong>فضای ذخیره‌سازی:</strong> حداقل 22 گیگابایت فضای خالی در حجم حاوی پروفایل Chrome</li>
+            <li><strong>GPU:</strong> بیش از 4 گیگابایت VRAM</li>
+            <li><strong>شبکه:</strong> پلن داده نامحدود یا اتصال بدون محدودیت</li>
+        </ul>
+
+        <div class="note">
+            <strong>نکته:</strong>
+            برای بررسی اندازه دقیق مدل، به آدرس <code>chrome://on-device-internals</code> بروید.
+        </div>
+
+        <h3>۳.۲. Microsoft Edge</h3>
+        <ul>
+            <li><strong>سیستم عامل:</strong> Windows 10 یا 11 و macOS 13.3 یا جدیدتر</li>
+            <li><strong>فضای ذخیره‌سازی:</strong> حداقل 20 گیگابایت فضای خالی (اگر کمتر از 10 گیگابایت شود، مدل حذف می‌شود)</li>
+            <li><strong>GPU:</strong> 5.5 گیگابایت VRAM یا بیشتر</li>
+            <li><strong>شبکه:</strong> پلن داده نامحدود یا اتصال بدون محدودیت</li>
+        </ul>
+
+        <div class="note">
+            <strong>نکته:</strong>
+            برای بررسی کلاس عملکرد دستگاه در Edge، به آدرس <code>edge://on-device-internals</code> بروید. اگر کلاس عملکرد <strong>High</strong> یا بالاتر باشد، APIها باید پشتیبانی شوند.
+        </div>
+
+        <h2 id="setup">۴. نصب و فعال‌سازی</h2>
+
+        <h3>۴.۱. فعال‌سازی در Chrome</h3>
+        
+        <h4>مرحله ۱: نصب Chrome Canary یا Dev</h4>
+        <p>ابتدا نسخه آخر <a href="https://www.google.com/chrome/canary/" target="_blank">Chrome Canary</a> یا <a href="https://www.google.com/chrome/dev/" target="_blank">Chrome Dev</a> را نصب کنید.</p>
+
+        <h4>مرحله ۲: فعال‌سازی فلگ‌ها</h4>
+        <p>به آدرس <code>chrome://flags/</code> بروید و فلگ‌های زیر را فعال کنید:</p>
+
+        <div class="flag-container">
+            <p><strong>فعال‌سازی اصلی API (چندزبانه):</strong></p>
+            <code>chrome://flags/#prompt-api-for-gemini-nano</code>
+            <button class="copy-btn-inline" id="copy-chrome-nano-flag">کپی آدرس</button>
+            <p style="margin-top: 0.5rem;"><em>مقدار آن را به <strong>"Enabled Multilingual"</strong> تغییر دهید.</em></p>
+        </div>
+
+        <div class="flag-container">
+            <p><strong>(اختیاری) فعال‌سازی ورودی چندوجهی (تصویر و صوت):</strong></p>
+            <code>chrome://flags/#prompt-api-for-gemini-nano-multimodal-input</code>
+            <button class="copy-btn-inline" id="copy-chrome-multimodal-flag">کپی آدرس</button>
+            <p style="margin-top: 0.5rem;"><em>مقدار آن را به <strong>"Enabled"</strong> تغییر دهید.</em></p>
+        </div>
+
+        <h4>مرحله ۳: راه‌اندازی مجدد</h4>
+        <p>Chrome را مجدداً راه‌اندازی کنید تا تغییرات اعمال شوند.</p>
+
+        <h3>۴.۲. فعال‌سازی در Microsoft Edge</h3>
+        
+        <h4>مرحله ۱: نصب Edge Canary یا Dev</h4>
+        <p>نسخه 138.0.3309.2 یا جدیدتر <a href="https://www.microsoft.com/edge/download/insider" target="_blank">Microsoft Edge Canary یا Dev</a> را نصب کنید.</p>
+
+        <h4>مرحله ۲: فعال‌سازی فلگ‌ها</h4>
+        <p>به آدرس <code>edge://flags/</code> بروید و فلگ‌های مورد نیاز را فعال کنید:</p>
+
+        <div class="flag-container">
+            <p><strong>Prompt API:</strong></p>
+            <code>edge://flags/#edge-llm-prompt-api-for-phi-mini</code>
+            <button class="copy-btn-inline" id="copy-edge-prompt-flag">کپی آدرس</button>
+        </div>
+
+        <div class="flag-container">
+            <p><strong>Summarizer API:</strong></p>
+            <code>edge://flags/#edge-llm-summarization-api-for-phi-mini</code>
+            <button class="copy-btn-inline" id="copy-edge-summarizer-flag">کپی آدرس</button>
+        </div>
+
+        <div class="flag-container">
+            <p><strong>Writer API:</strong></p>
+            <code>edge://flags/#edge-llm-writer-api-for-phi-mini</code>
+            <button class="copy-btn-inline" id="copy-edge-writer-flag">کپی آدرس</button>
+        </div>
+
+        <div class="flag-container">
+            <p><strong>Rewriter API:</strong></p>
+            <code>edge://flags/#edge-llm-rewriter-api-for-phi-mini</code>
+            <button class="copy-btn-inline" id="copy-edge-rewriter-flag">کپی آدرس</button>
+        </div>
+
+        <h4>مرحله ۳: راه‌اندازی مجدد</h4>
+        <p>Edge را مجدداً راه‌اندازی کنید.</p>
+
+        <h2 id="prompt-api">۵. Prompt API <span class="browser-badge chrome-badge">Chrome</span> <span class="browser-badge edge-badge">Edge</span></h2>
+        <p>Prompt API قدرتمندترین و انعطاف‌پذیرترین API در این مجموعه است که به شما امکان می‌دهد با مدل زبانی به صورت مستقیم تعامل کنید.</p>
+
+        <h3>۵.۱. بررسی دسترسی به API و دانلود مدل</h3>
+        <pre><code class="language-javascript">if (!LanguageModel) {
+  // Prompt API در دسترس نیست
+  console.log("API not available");
+} else {
+  // Prompt API در دسترس است
+  console.log("API available");
+}</code></pre>
+
+        <div class="examples-box">
+            <h4>📝 نمونه کدهای مرتبط:</h4>
+            <ul>
+                <li><a href="examples/00-download_model.htm" target="_blank" class="demo-link">🔽 دانلود مدل با Progress Bar</a></li>
+                <li><a href="examples/01-check-availability-console.htm" target="_blank" class="demo-link">🔍 بررسی Availability (کنسول)</a></li>
+                <li><a href="examples/01-check-availability-simple-ui.htm" target="_blank" class="demo-link">🔍 بررسی Availability (رابط کاربری)</a></li>
+            </ul>
+        </div>
+
+        <h3>۵.۲. بررسی دسترسی به مدل</h3>
+        <pre><code class="language-javascript">const availability = await LanguageModel.availability();
+
+if (availability === "unavailable") {
+  // مدل در دسترس نیست
+  console.log("Model unavailable");
+}
+
+if (availability === "downloadable" || availability === "downloading") {
+  // مدل قابل استفاده است اما ابتدا باید دانلود شود
+  console.log("Model needs download");
+}
+
+if (availability === "available") {
+  // مدل در دسترس است و می‌تواند استفاده شود
+  console.log("Model ready");
+}</code></pre>
+
+        <h3>۵.۳. دریافت پارامترهای مدل</h3>
+        <p>برای مشاهده پارامترهای پیش‌فرض و حداکثر مدل:</p>
+        <pre><code class="language-javascript">const params = await LanguageModel.params();
+console.log(params);
+// {
+//   defaultTopK: 3,
+//   maxTopK: 128,
+//   defaultTemperature: 1,
+//   maxTemperature: 2
+// }</code></pre>
+
+        <h3>۵.۴. ایجاد Session با مانیتور دانلود</h3>
+        <pre><code class="language-javascript">const session = await LanguageModel.create({
+  monitor(m) {
+    m.addEventListener('downloadprogress', (e) => {
+      const percentage = (e.loaded / e.total) * 100;
+      console.log(`دانلود: ${percentage.toFixed(1)}%`);
+    });
+  }
+});</code></pre>
+
+        <h3>۵.۵. پرامپت کردن مدل</h3>
+        
+        <h4>پاسخ غیر استریمینگ:</h4>
+        <pre><code class="language-javascript">const session = await LanguageModel.create();
+const result = await session.prompt('Write me a poem about AI!');
+console.log(result);</code></pre>
+
+        <div class="examples-box">
+            <h4>📝 نمونه کدهای مرتبط:</h4>
+            <ul>
+                <li><a href="examples/02-1-prompt-console.htm" target="_blank" class="demo-link">💬 Prompt ساده (کنسول)</a></li>
+                <li><a href="examples/02-2-prompt-simple-ui.htm" target="_blank" class="demo-link">💬 Prompt ساده (رابط کاربری)</a></li>
+            </ul>
+        </div>
+
+        <h4>پاسخ استریمینگ:</h4>
+        <pre><code class="language-javascript">const session = await LanguageModel.create();
+const stream = session.promptStreaming('Write me a long story!');
+
+for await (const chunk of stream) {
+  console.log(chunk);
+}</code></pre>
+
+        <div class="examples-box">
+            <h4>📝 نمونه کدهای Streaming:</h4>
+            <ul>
+                <li><a href="examples/03-1-promptStreaming-console.htm" target="_blank" class="demo-link">📡 Streaming ساده (کنسول)</a></li>
+                <li><a href="examples/03-2-promptStreaming-simple-ui.htm" target="_blank" class="demo-link">📡 Streaming (رابط کاربری)</a></li>
+                <li><a href="examples/03-3-promptStreaming_markdown.htm" target="_blank" class="demo-link">📡 Streaming با Markdown</a></li>
+                <li><a href="examples/03-4-promptStreaming-with-abort.htm" target="_blank" class="demo-link">⏹️ Streaming با قابلیت توقف</a></li>
+                <li><a href="examples/03-5-promptStreaming-with-abort-v2.htm" target="_blank" class="demo-link">⏹️ Streaming با توقف (نسخه 2)</a></li>
+            </ul>
+        </div>
+
+        <h3>۵.۶. استفاده از Initial Prompts</h3>
+        <p>برای ارائه زمینه از تعاملات قبلی:</p>
+        <pre><code class="language-javascript">const session = await LanguageModel.create({
+  initialPrompts: [
+    { 
+      role: 'system', 
+      content: 'You are a helpful and friendly assistant.' 
+    },
+    { 
+      role: 'user', 
+      content: 'What is the capital of Italy?' 
+    },
+    { 
+      role: 'assistant', 
+      content: 'The capital of Italy is Rome.' 
+    },
+    { 
+      role: 'user', 
+      content: 'What language is spoken there?' 
+    },
+    {
+      role: 'assistant',
+      content: 'The official language of Italy is Italian.'
+    }
+  ]
+});</code></pre>
+
+        <h3>۵.۷. N-shot Prompting (Few-Shot Learning)</h3>
+        <p>برای آموزش الگو به مدل از طریق مثال‌ها:</p>
+        <pre><code class="language-javascript">const session = await LanguageModel.create({
+  initialPrompts: [
+    { role: "system", content: "Classify reviews as OK or Not OK." },
+    { role: "user", content: "Great product! Very happy." },
+    { role: "assistant", content: "OK" },
+    { role: "user", content: "Terrible quality. Waste of money." },
+    { role: "assistant", content: "Not OK" }
+  ]
+});</code></pre>
+
+        <div class="examples-box">
+            <h4>📝 نمونه کدهای Few-Shot:</h4>
+            <ul>
+                <li><a href="examples/05-1-few-shot-cosole.htm" target="_blank" class="demo-link">🎯 Few-Shot Learning (کنسول)</a></li>
+                <li><a href="examples/05-2-few-shot-simple-ui.htm" target="_blank" class="demo-link">🎯 Few-Shot Learning (رابط کاربری)</a></li>
+            </ul>
+        </div>
+
+        <h3>۵.۸. محدود کردن پاسخ با Prefix</h3>
+        <p>برای هدایت مدل به استفاده از فرمت خاص:</p>
+        <pre><code class="language-javascript">const characterSheet = await session.prompt([
+  {
+    role: 'user',
+    content: 'Create a TOML character sheet for a gnome barbarian'
+  },
+  {
+    role: 'assistant',
+    content: '```toml\n',
+    prefix: true  // این باعث می‌شود مدل با این فرمت ادامه دهد
+  }
+]);</code></pre>
+
+        <h3>۵.۹. اضافه کردن پیام‌ها با append()</h3>
+        <p>برای ارسال پیام‌های از پیش تعیین شده قبل از پرامپت اصلی:</p>
+        <pre><code class="language-javascript">const session = await LanguageModel.create({
+  initialPrompts: [{
+    role: 'system',
+    content: 'You are a skilled analyst who correlates patterns across multiple images.'
+  }],
+  expectedInputs: [{ type: 'image' }]
+});
+
+// بعداً، وقتی کاربر فایلی آپلود کرد
+fileUpload.onchange = async () => {
+  await session.append([{
+    role: 'user',
+    content: [
+      {
+        type: 'text',
+        value: `Here's one image. Notes: ${fileNotesInput.value}`
+      },
+      { type: 'image', value: fileUpload.files[0] }
+    ]
+  }]);
+};
+
+// و سپس تحلیل
+analyzeButton.onclick = async () => {
+  const result = await session.prompt(userQuestionInput.value);
+  console.log(result);
+};</code></pre>
+
+        <h3>۵.۱۰. بررسی محدودیت‌های Session</h3>
+        <pre><code class="language-javascript">// بررسی مصرف توکن
+console.log(`استفاده شده: ${session.inputUsage} از ${session.inputQuota}`);</code></pre>
+
+        <h3>۵.۱۱. استفاده از JSON Schema (Structured Output)</h3>
+        <pre><code class="language-javascript">const session = await LanguageModel.create();
+
+const schema = {
+  "type": "object",
+  "required": ["sentiment", "confidence"],
+  "properties": {
+    "sentiment": {
+      "type": "string",
+      "enum": ["positive", "negative", "neutral"]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  }
+};
+
+const response = await session.prompt(
+  "The food was delicious, service was excellent!",
+  {
+    initialPrompts: [{
+      role: "system",
+      content: "Analyze sentiment and return JSON with sentiment and confidence."
+    }],
+    responseConstraint: schema
+  }
+);
+
+const { sentiment, confidence } = JSON.parse(response);
+console.log(`احساس: ${sentiment}, اطمینان: ${confidence}`);</code></pre>
+
+        <div class="examples-box">
+            <h4>📝 نمونه کدهای Structured Output:</h4>
+            <ul>
+                <li><a href="examples/06-1-prompt-structured-console.htm" target="_blank" class="demo-link">🔢 Structured Output (کنسول)</a></li>
+                <li><a href="examples/06-2-prompt-structured-simple-ui.htm" target="_blank" class="demo-link">🔢 Structured Output (رابط کاربری)</a></li>
+                <li><a href="examples/06-3-movie-review-sentiment-analysis.htm" target="_blank" class="demo-link">🎬 تحلیل احساسات نقد فیلم (پروژه کامل)</a></li>
+                <li><a href="examples/06-4-prompt-structured.htm" target="_blank" class="demo-link">🔢 Structured Output (پیشرفته)</a></li>
+            </ul>
+        </div>
+
+        <h3>۵.۱۲. توقف تولید متن</h3>
+        <pre><code class="language-javascript">const controller = new AbortController();
+const session = await LanguageModel.create();
+
+stopButton.onclick = () => controller.abort();
+
+const result = await session.prompt('Write me a poem!', {
+  signal: controller.signal
+});</code></pre>
+
+        <h3>۵.۱۳. Clone کردن Session</h3>
+        <pre><code class="language-javascript">const firstSession = await LanguageModel.create({
+  initialPrompts: [{
+    role: "system",
+    content: "You are a helpful assistant."
+  }]
+});
+
+// Clone با حفظ تنظیمات اولیه
+const secondSession = await firstSession.clone();</code></pre>
+
+        <div class="examples-box">
+            <h4>📝 نمونه کد Clone Session:</h4>
+            <ul>
+                <li><a href="examples/04-1-clone-session.htm" target="_blank" class="demo-link">🔄 Clone Session</a></li>
+            </ul>
+        </div>
+
+        <h3>۵.۱۴. نابود کردن Session</h3>
+        <pre><code class="language-javascript">// روش اول
+session.destroy();
+
+// روش دوم با AbortController
+const controller = new AbortController();
+const session = await LanguageModel.create({ 
+  signal: controller.signal 
+});
+controller.abort();</code></pre>
+
+        <h3>۵.۱۵. قابلیت‌های چندوجهی (Multimodal) <span class="browser-badge chrome-badge">Chrome</span></h3>
+        <p>Prompt API در Chrome از ورودی تصویر و صوت پشتیبانی می‌کند:</p>
+
+        <h4>استفاده از تصویر:</h4>
+        <pre><code class="language-javascript">const session = await LanguageModel.create({
+  expectedInputs: [{ type: 'image' }]
+});
+
+const referenceImage = await (await fetch('/reference-image.jpeg')).blob();
+const userDrawnImage = document.querySelector('canvas');
+
+const response = await session.prompt([
+  {
+    role: 'user',
+    content: [
+      {
+        type: 'text',
+        value: 'Compare these two images:'
+      },
+      { type: 'image', value: referenceImage },
+      { type: 'image', value: userDrawnImage }
+    ]
+  }
+]);
+
+console.log(response);</code></pre>
+
+        <h4>استفاده از صوت:</h4>
+        <pre><code class="language-javascript">const session = await LanguageModel.create({
+  expectedInputs: [{ type: 'audio' }]
+});
+
+const audioBlob = await captureMicrophoneInput({ seconds: 10 });
+
+const response = await session.prompt([
+  {
+    role: 'user',
+    content: [
+      { type: 'text', value: 'Transcribe this audio:' },
+      { type: 'audio', value: audioBlob }
+    ]
+  }
+]);
+
+console.log(response);</code></pre>
+
+        <div class="examples-box">
+            <h4>📝 نمونه کدهای Multimodal (VLM):</h4>
+            <ul>
+                <li><a href="examples/07-1-VLM-console.htm" target="_blank" class="demo-link">🖼️ تحلیل تصویر (کنسول)</a></li>
+                <li><a href="examples/07-2-VLM-console2.htm" target="_blank" class="demo-link">🖼️ تحلیل تصویر (کنسول 2)</a></li>
+                <li><a href="examples/07-3-VLM-simple-ui.htm" target="_blank" class="demo-link">🖼️ تحلیل تصویر (رابط کاربری)</a></li>
+            </ul>
+        </div>
+
+        <h2 id="writing-apis">۶. Writing Assistance APIs <span class="browser-badge edge-badge">Edge</span></h2>
+        <p>Writing Assistance APIs شامل سه API است که برای وظایف خاص نوشتاری بهینه شده‌اند و فقط در Microsoft Edge در دسترس هستند.</p>
+
+        <h3 id="summarizer">۶.۱. Summarizer API</h3>
+        <p>برای خلاصه‌سازی متن در سبک‌ها و طول‌های مختلف.</p>
+
+        <h4>بررسی دسترسی:</h4>
+        <pre><code class="language-javascript">if (!Summarizer) {
+  console.log("Summarizer API not available");
+}
+
+const availability = await Summarizer.availability();
+console.log(availability); // "unavailable", "downloadable", "downloading", "available"</code></pre>
+
+        <h4>ایجاد Session و خلاصه‌سازی:</h4>
+        <pre><code class="language-javascript">const summarizerSession = await Summarizer.create({
+  sharedContext: "An article from the Daily Economic News magazine",
+  type: "tl;dr",
+  length: "short",
+  format: "markdown"
+});
+
+const summary = await summarizerSession.summarize(articleText, {
+  context: "This article was written on 2024-08-07"
+});
+
+console.log(summary);</code></pre>
+
+        <h4>گزینه‌های Summarizer:</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>گزینه</th>
+                    <th>مقادیر ممکن</th>
+                    <th>توضیحات</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>type</code></td>
+                    <td>"tl;dr", "key-points", "teaser", "headline"</td>
+                    <td>نوع خلاصه</td>
+                </tr>
+                <tr>
+                    <td><code>length</code></td>
+                    <td>"short", "medium", "long"</td>
+                    <td>طول خلاصه</td>
+                </tr>
+                <tr>
+                    <td><code>format</code></td>
+                    <td>"plain-text", "markdown"</td>
+                    <td>فرمت خروجی</td>
+                </tr>
+                <tr>
+                    <td><code>sharedContext</code></td>
+                    <td>String</td>
+                    <td>زمینه مشترک</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>خلاصه‌سازی استریمینگ:</h4>
+        <pre><code class="language-javascript">const session = await Summarizer.create({ type: "key-points" });
+const stream = session.summarizeStreaming(longText);
+
+for await (const chunk of stream) {
+  console.log(chunk);
+}</code></pre>
+
+        <h3 id="writer">۶.۲. Writer API</h3>
+        <p>برای نوشتن متن جدید بر اساس پرامپت.</p>
+
+        <h4>استفاده پایه:</h4>
+        <pre><code class="language-javascript">if (!Writer) {
+  console.log("Writer API not available");
+}
+
+const writer = await Writer.create({ 
+  tone: "formal",
+  length: "medium"
+});
+
+const result = await writer.write(
+  "A draft for an inquiry to my bank about enabling wire transfers"
+);
+
+console.log(result);</code></pre>
+
+        <h4>گزینه‌های Writer:</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>گزینه</th>
+                    <th>مقادیر ممکن</th>
+                    <th>توضیحات</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>tone</code></td>
+                    <td>"formal", "neutral", "casual"</td>
+                    <td>لحن متن</td>
+                </tr>
+                <tr>
+                    <td><code>length</code></td>
+                    <td>"short", "medium", "long"</td>
+                    <td>طول متن</td>
+                </tr>
+                <tr>
+                    <td><code>format</code></td>
+                    <td>"plain-text", "markdown"</td>
+                    <td>فرمت خروجی</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 id="rewriter">۶.۳. Rewriter API</h3>
+        <p>برای بازنویسی و اصلاح متن موجود.</p>
+
+        <h4>استفاده پایه:</h4>
+        <pre><code class="language-javascript">if (!Rewriter) {
+  console.log("Rewriter API not available");
+}
+
+const rewriter = await Rewriter.create({ 
+  sharedContext: "A user review for shoes",
+  tone: "more-formal"
+});
+
+const result = await rewriter.rewrite(originalText, { 
+  context: "Remove harsh language while preserving the core feedback"
+});
+
+console.log(result);</code></pre>
+
+        <h4>گزینه‌های Rewriter:</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>گزینه</th>
+                    <th>مقادیر ممکن</th>
+                    <th>توضیحات</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>tone</code></td>
+                    <td>"as-is", "more-formal", "more-casual"</td>
+                    <td>تغییر لحن</td>
+                </tr>
+                <tr>
+                    <td><code>length</code></td>
+                    <td>"as-is", "shorter", "longer"</td>
+                    <td>تغییر طول</td>
+                </tr>
+                <tr>
+                    <td><code>format</code></td>
+                    <td>"as-is", "plain-text", "markdown"</td>
+                    <td>تغییر فرمت</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="translator">۷. Translator API <span class="browser-badge chrome-badge">Chrome Desktop</span></h2>
+        <p>Translator API امکان ترجمه متن بین زبان‌های مختلف را فراهم می‌کند. این API فقط در نسخه دسکتاپ Chrome کار می‌کند.</p>
+
+        <div class="note">
+            <strong>توجه:</strong>
+            Translator API در حال حاضر فقط در Chrome روی دسکتاپ (Windows، macOS، Linux) کار می‌کند و در دستگاه‌های موبایل پشتیبانی نمی‌شود.
+        </div>
+
+        <h3>۷.۱. بررسی دسترسی و قابلیت ترجمه</h3>
+        <pre><code class="language-javascript">if (!translation || !translation.createTranslator) {
+  console.log("Translator API not available");
+}
+
+// بررسی پشتیبانی از یک جفت زبان خاص
+const canTranslate = await translation.canTranslate({
+  sourceLanguage: 'en',
+  targetLanguage: 'fa'
+});
+
+console.log(canTranslate);
+// "readily" - آماده استفاده فوری
+// "after-download" - نیاز به دانلود دارد
+// "no" - پشتیبانی نمی‌شود</code></pre>
+
+        <h3>۷.۲. ایجاد Translator</h3>
+        <pre><code class="language-javascript">const translator = await translation.createTranslator({
+  sourceLanguage: 'en',
+  targetLanguage: 'fa'
+});
+
+const translatedText = await translator.translate("Hello, how are you?");
+console.log(translatedText); // "سلام، حال شما چطور است؟"</code></pre>
+
+        <h3>۷.۳. ترجمه استریمینگ</h3>
+        <pre><code class="language-javascript">const translator = await translation.createTranslator({
+  sourceLanguage: 'en',
+  targetLanguage: 'fa'
+});
+
+const stream = translator.translateStreaming("A very long text to be translated...");
+
+for await (const chunk of stream) {
+  console.log(chunk);
+}</code></pre>
+
+        <h2 id="detector">۸. Language Detector API <span class="browser-badge chrome-badge">Chrome Desktop</span></h2>
+        <p>Language Detector API برای شناسایی زبان یک قطعه متن استفاده می‌شود. این API معمولاً به عنوان مکمل Translator API کار می‌کند.</p>
+
+        <h3>۸.۱. استفاده از Language Detector</h3>
+        <pre><code class="language-javascript">if (!translation || !translation.createDetector) {
+  console.log("Language Detector API not available");
+}
+
+// ایجاد detector
+const detector = await translation.createDetector();
+
+// شناسایی زبان
+const results = await detector.detect("Hallo und herzlich willkommen!");
+
+// نتایج بر اساس اطمینان مرتب شده‌اند
+if (results.length > 0) {
+  const topResult = results[0];
+  console.log(`زبان: ${topResult.detectedLanguage}`);
+  console.log(`اطمینان: ${topResult.confidence.toFixed(4)}`);
+}
+// خروجی: زبان: de (آلمانی)</code></pre>
+
+        <div class="warning">
+            <strong>هشدار:</strong>
+            دقت این API برای متون بسیار کوتاه و کلمات منفرد پایین است. اگر با متون کوتاه کار می‌کنید، میزان اطمینان را بررسی کنید و در صورتی که خیلی پایین بود، نتیجه را نامشخص در نظر بگیرید.
+        </div>
+
+        <h3>۸.۲. ترکیب Detector و Translator</h3>
+        <pre><code class="language-javascript">// شناسایی زبان متن
+const detector = await translation.createDetector();
+const results = await detector.detect(userInput);
+
+if (results.length > 0 && results[0].confidence > 0.5) {
+  const sourceLanguage = results[0].detectedLanguage;
+  
+  // بررسی امکان ترجمه
+  const canTranslate = await translation.canTranslate({
+    sourceLanguage: sourceLanguage,
+    targetLanguage: 'fa'
+  });
+  
+  if (canTranslate !== 'no') {
+    // ایجاد مترجم
+    const translator = await translation.createTranslator({
+      sourceLanguage: sourceLanguage,
+      targetLanguage: 'fa'
+    });
+    
+    // ترجمه متن
+    const translatedText = await translator.translate(userInput);
+    console.log(translatedText);
+  }
+}</code></pre>
+
+        <h2 id="advanced">۹. مباحث پیشرفته و بهترین شیوه‌ها</h2>
+        
+        <h3>۹.۱. مدیریت خطاها</h3>
+        <p>خطاهای رایج که ممکن است با آن‌ها مواجه شوید:</p>
+        <ul>
+            <li><strong><code>NotSupportedError</code>:</strong> قابلیت یا گزینه پشتیبانی نمی‌شود</li>
+            <li><strong><code>NotAllowedError</code>:</strong> سیاست‌های دسترسی اجازه استفاده را نمی‌دهند</li>
+            <li><strong><code>QuotaExceededError</code>:</strong> متن ورودی از حداکثر ظرفیت فراتر رفته</li>
+            <li><strong><code>SyntaxError</code>:</strong> مدل نتوانست خروجی مطابق با <code>responseConstraint</code> تولید کند</li>
+            <li><strong><code>AbortError</code>:</strong> عملیات با <code>AbortSignal</code> لغو شد</li>
+        </ul>
+
+        <h3>۹.۲. بهترین شیوه‌ها</h3>
+        <ul>
+            <li><strong>استفاده مجدد از Session:</strong> به جای ایجاد مکرر، از یک Session استفاده مجدد کنید</li>
+            <li><strong>Clone برای مکالمات جدید:</strong> از <code>clone()</code> برای شروع مکالمه جدید با همان تنظیمات استفاده کنید</li>
+            <li><strong>مدیریت دانلود:</strong> از <code>monitor</code> برای نمایش پیشرفت دانلود به کاربر استفاده کنید</li>
+            <li><strong>بررسی محدودیت‌ها:</strong> همیشه <code>inputUsage</code> و <code>inputQuota</code> را بررسی کنید</li>
+            <li><strong>مدیریت حافظه:</strong> Session‌های غیرضروری را با <code>destroy()</code> نابود کنید</li>
+        </ul>
+
+        <h3>۹.۳. Permission Policy و iframes</h3>
+        <p>به صورت پیش‌فرض، این APIها فقط برای پنجره‌های سطح بالا و iframe‌های هم‌منشأ آن‌ها در دسترس است. برای دسترسی در iframe‌های cross-origin:</p>
+        <pre><code class="language-html"><!-- سایت اصلی در https://main.example.com -->
+<iframe src="https://cross-origin.example.com/" allow="language-model"></iframe></code></pre>
+
+        <h3>۹.۴. نمونه کامل: برنامه چت هوشمند</h3>
+        <pre><code class="language-javascript">class AIChat {
+  constructor() {
+    this.session = null;
+    this.messageHistory = [];
+  }
+
+  async initialize() {
+    // بررسی دسترسی
+    if (!LanguageModel) {
+      throw new Error("API not available");
+    }
+
+    // بررسی وضعیت مدل
+    const availability = await LanguageModel.availability();
+    if (availability === "unavailable") {
+      throw new Error("Model not available");
+    }
+
+    // ایجاد session با مانیتور
+    this.session = await LanguageModel.create({
+      initialPrompts: [{
+        role: 'system',
+        content: 'You are a helpful AI assistant. Keep answers concise.'
+      }],
+      topK: 5,
+      temperature: 0.7,
+      monitor: (m) => {
+        m.addEventListener('downloadprogress', (e) => {
+          const progress = (e.loaded / e.total) * 100;
+          this.onDownloadProgress(progress);
+        });
+      }
+    });
+
+    console.log("AI Chat initialized");
+  }
+
+  async sendMessage(userMessage) {
+    if (!this.session) {
+      throw new Error("Session not initialized");
+    }
+
+    // ذخیره پیام کاربر
+    this.messageHistory.push({
+      role: 'user',
+      content: userMessage
+    });
+
+    try {
+      // ارسال پرامپت و دریافت پاسخ
+      const response = await this.session.prompt(userMessage);
+
+      // ذخیره پاسخ
+      this.messageHistory.push({
+        role: 'assistant',
+        content: response
+      });
+
+      // بررسی محدودیت
+      const usage = this.session.inputUsage;
+      const quota = this.session.inputQuota;
+      console.log(`Token usage: ${usage}/${quota}`);
+
+      if (usage > quota * 0.8) {
+        console.warn("Approaching token limit");
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Error sending message:", error);
+      throw error;
+    }
+  }
+
+  async sendMessageStreaming(userMessage, onChunk) {
+    if (!this.session) {
+      throw new Error("Session not initialized");
+    }
+
+    const stream = this.session.promptStreaming(userMessage);
+    let fullResponse = '';
+
+    for await (const chunk of stream) {
+      fullResponse += chunk;
+      onChunk(chunk);
+    }
+
+    // ذخیره در تاریخچه
+    this.messageHistory.push({
+      role: 'user',
+      content: userMessage
+    });
+    this.messageHistory.push({
+      role: 'assistant',
+      content: fullResponse
+    });
+
+    return fullResponse;
+  }
+
+  async resetConversation() {
+    if (this.session) {
+      // Clone برای حفظ تنظیمات اولیه
+      const oldSession = this.session;
+      this.session = await oldSession.clone();
+      oldSession.destroy();
+      this.messageHistory = [];
+      console.log("Conversation reset");
+    }
+  }
+
+  destroy() {
+    if (this.session) {
+      this.session.destroy();
+      this.session = null;
+      this.messageHistory = [];
+      console.log("AI Chat destroyed");
+    }
+  }
+
+  onDownloadProgress(percentage) {
+    console.log(`Model download: ${percentage.toFixed(1)}%`);
+  }
+}
+
+// استفاده
+const chat = new AIChat();
+
+// مقداردهی اولیه
+await chat.initialize();
+
+// ارسال پیام
+const response = await chat.sendMessage("What is artificial intelligence?");
+console.log(response);
+
+// ارسال پیام استریمینگ
+await chat.sendMessageStreaming(
+  "Tell me a story",
+  (chunk) => {
+    process.stdout.write(chunk); // نمایش به محض تولید
+  }
+);
+
+// ریست مکالمه
+await chat.resetConversation();
+
+// در پایان
+chat.destroy();</code></pre>
+
+        <h2 id="conclusion">۱۰. نتیجه‌گیری</h2>
+        <p>APIهای هوش مصنوعی داخلی مرورگر، چه در Chrome با Gemini Nano و چه در Microsoft Edge با Phi-4-mini، امکانات بی‌نظیری را برای توسعه‌دهندگان وب فراهم می‌کنند. این APIها با ارائه قابلیت‌هایی از جمله:</p>
+        
+        <ul>
+            <li>پردازش محلی و حفظ حریم خصوصی</li>
+            <li>سرعت بالا و پاسخ‌دهی فوری</li>
+            <li>عملکرد آفلاین</li>
+            <li>کاهش هزینه‌های توسعه</li>
+        </ul>
+
+        <p>مسیر جدیدی را برای ساخت برنامه‌های وب هوشمند، کارآمد و کاربرپسند باز کرده‌اند.</p>
+
+        <div class="warning">
+            <strong>یادآوری مهم:</strong>
+            این APIها هنوز در مرحله پیش‌نمایش توسعه‌دهندگان هستند و ممکن است در آینده تغییراتی داشته باشند. برای به‌روزرسانی‌ها و اطلاعات جدید، منابع رسمی را دنبال کنید.
+        </div>
+
+        <h3>۱۰.۱. مقایسه Chrome و Edge</h3>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>ویژگی</th>
+                    <th>Chrome (Gemini Nano)</th>
+                    <th>Edge (Phi-4-mini)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Prompt API</td>
+                    <td>✅</td>
+                    <td>✅</td>
+                </tr>
+                <tr>
+                    <td>Summarizer API</td>
+                    <td>✅ (در حال توسعه)</td>
+                    <td>✅</td>
+                </tr>
+                <tr>
+                    <td>Writer API</td>
+                    <td>✅ (در حال توسعه)</td>
+                    <td>✅</td>
+                </tr>
+                <tr>
+                    <td>Rewriter API</td>
+                    <td>✅ (در حال توسعه)</td>
+                    <td>✅</td>
+                </tr>
+                <tr>
+                    <td>Translator API</td>
+                    <td>✅ (فقط دسکتاپ)</td>
+                    <td>❌ (در حال توسعه)</td>
+                </tr>
+                <tr>
+                    <td>Language Detector</td>
+                    <td>✅ (فقط دسکتاپ)</td>
+                    <td>❌ (در حال توسعه)</td>
+                </tr>
+                <tr>
+                    <td>ورودی چندوجهی (تصویر/صوت)</td>
+                    <td>✅</td>
+                    <td>❌ (در حال توسعه)</td>
+                </tr>
+                <tr>
+                    <td>پشتیبانی موبایل</td>
+                    <td>❌ (در حال توسعه)</td>
+                    <td>❌</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>۱۰.۲. منابع و لینک‌های مفید</h3>
+        
+        <h4>Chrome / Gemini Nano:</h4>
+        <ul>
+            <li><a href="https://developer.chrome.com/docs/ai/prompt-api" target="_blank">مستندات رسمی Prompt API</a></li>
+            <li><a href="https://ai.chrome.dev/demos" target="_blank">دموها و Playground</a></li>
+            <li><a href="https://github.com/webmachinelearning/prompt-api" target="_blank">Prompt API GitHub</a></li>
+            <li><a href="https://deepmind.google/technologies/gemini/nano/" target="_blank">Gemini Nano</a></li>
+        </ul>
+
+        <h4>Microsoft Edge / Phi-4-mini:</h4>
+        <ul>
+            <li><a href="https://learn.microsoft.com/en-us/microsoft-edge/web-platform/prompt-api" target="_blank">مستندات Prompt API</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/microsoft-edge/web-platform/writing-assistance-apis" target="_blank">مستندات Writing Assistance APIs</a></li>
+            <li><a href="https://microsoftedge.github.io/Demos/built-in-ai/playgrounds/prompt-api/" target="_blank">Prompt API Playground</a></li>
+            <li><a href="https://huggingface.co/microsoft/Phi-4-mini-instruct" target="_blank">Phi-4-mini Model Card</a></li>
+            <li><a href="https://github.com/MicrosoftEdge/MSEdgeExplainers/issues/1012" target="_blank">Prompt API Feedback</a></li>
+            <li><a href="https://github.com/MicrosoftEdge/MSEdgeExplainers/issues/1031" target="_blank">Writing APIs Feedback</a></li>
+        </ul>
+
+        <h4>W3C و استانداردها:</h4>
+        <ul>
+            <li><a href="https://github.com/webmachinelearning/prompt-api" target="_blank">Prompt API Explainer</a></li>
+            <li><a href="https://github.com/webmachinelearning/writing-assistance-apis" target="_blank">Writing Assistance APIs Explainer</a></li>
+            <li><a href="https://github.com/webmachinelearning/translation-api" target="_blank">Translation API Explainer</a></li>
+        </ul>
+
+        <div class="info">
+            <strong>مشارکت در توسعه:</strong>
+            شما می‌توانید با ارسال بازخورد، گزارش باگ و پیشنهادات خود به بهبود این APIها و شکل‌گیری استانداردهای وب کمک کنید. از لینک‌های Feedback در بالا استفاده کنید.
+        </div>
+
+        <div class="note">
+            <strong>تشکر:</strong>
+            این راهنما بر اساس مستندات رسمی Chrome و Microsoft Edge تهیه شده است. تمام نمونه کدها از منابع رسمی اخذ شده‌اند.
+        </div>
+    </div>
+
+    <script src="js/prism-core.min.js"></script>
+    <script src="js/prism-clike.min.js"></script>
+    <script src="js/prism-javascript.min.js"></script>
+    <script src="js/prism-markup.min.js"></script>
+    <script>
+        function copyToClipboard(text, buttonId) {
+            navigator.clipboard.writeText(text).then(() => {
+                const button = document.getElementById(buttonId);
+                const originalText = button.textContent;
+                button.textContent = 'کپی شد! ✅';
+                button.classList.add('copied');
+
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                const button = document.getElementById(buttonId);
+                button.textContent = 'خطا ❌';
+                setTimeout(() => {
+                    button.textContent = 'کپی آدرس';
+                }, 2000);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // دکمه‌های کپی برای بلوک‌های کد
+            document.querySelectorAll('pre').forEach(pre => {
+                const codeBlock = pre.querySelector('code');
+                if (!codeBlock) return;
+
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-btn';
+                copyButton.textContent = 'کپی';
+                pre.appendChild(copyButton);
+                
+                copyButton.addEventListener('click', () => {
+                    navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                        copyButton.textContent = 'کپی شد!';
+                        copyButton.classList.add('copied');
+                        setTimeout(() => {
+                            copyButton.textContent = 'کپی';
+                            copyButton.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+            });
+            
+            // دکمه‌های کپی برای فلگ‌ها - Chrome
+            document.getElementById('copy-chrome-nano-flag')?.addEventListener('click', () => {
+                copyToClipboard('chrome://flags/#prompt-api-for-gemini-nano', 'copy-chrome-nano-flag');
+            });
+            
+            document.getElementById('copy-chrome-multimodal-flag')?.addEventListener('click', () => {
+                copyToClipboard('chrome://flags/#prompt-api-for-gemini-nano-multimodal-input', 'copy-chrome-multimodal-flag');
+            });
+
+            // دکمه‌های کپی برای فلگ‌ها - Edge
+            document.getElementById('copy-edge-prompt-flag')?.addEventListener('click', () => {
+                copyToClipboard('edge://flags/#edge-llm-prompt-api-for-phi-mini', 'copy-edge-prompt-flag');
+            });
+
+            document.getElementById('copy-edge-summarizer-flag')?.addEventListener('click', () => {
+                copyToClipboard('edge://flags/#edge-llm-summarization-api-for-phi-mini', 'copy-edge-summarizer-flag');
+            });
+
+            document.getElementById('copy-edge-writer-flag')?.addEventListener('click', () => {
+                copyToClipboard('edge://flags/#edge-llm-writer-api-for-phi-mini', 'copy-edge-writer-flag');
+            });
+
+            document.getElementById('copy-edge-rewriter-flag')?.addEventListener('click', () => {
+                copyToClipboard('edge://flags/#edge-llm-rewriter-api-for-phi-mini', 'copy-edge-rewriter-flag');
+            });
+        });
+    </script>
+
+</body></html>
